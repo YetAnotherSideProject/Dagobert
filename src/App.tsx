@@ -1,15 +1,39 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="./main.css" />
-  </head>
-  <body>
+import React, { useEffect } from 'react';
+import Chart from 'chart.js/auto';
+
+function App() {
+
+
+useEffect(()=>{
+  const ctx = document.getElementById("myChart");
+  const myChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Red", "Blue", "Yellow"],
+      datasets: [
+        {
+          label: "My First Dataset",
+          data: [300, 50, 100],
+          backgroundColor: [
+            "rgb(255, 99, 132)",
+            "rgb(54, 162, 235)",
+            "rgb(255, 205, 85)",
+          ],
+          hoverOffset: 4,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: true,
+    },
+  });
+  return () => {myChart.destroy()}
+},[])
+
+  return (<>
     <div>
-      <div style="font-size: 40px">Brutto-Netto-Rechner</div>
-      <form style="display: grid">
+      <div style={{fontSize: "40px"}}>Brutto-Netto-Rechner</div>
+      <form style={{display: "grid"}}>
         <span>Bruttolohn pro Monat</span>
         <input type="number" />
         <span>Abrechnungszeitraum</span>
@@ -40,10 +64,11 @@
         <input type="number" />
       </form>
     </div>
-    <div style="position: relative; width: 100%; height: 100%">
+    <div style={{position: "relative", width: "100%", height: "100%"}}>
       <canvas id="myChart"></canvas>
     </div>
+    </>
+  );
+}
 
-    <script src="./index.ts"></script>
-  </body>
-</html>
+export default App;

@@ -28,12 +28,15 @@ body {
   margin-left: auto;
   margin-right: auto;
   padding: 32px 16px;
+}
+
+#root {
   display: grid;
   grid-template-columns: 1fr;
 }
 
 @media screen and (min-width: 900px) {
-  body {
+  #root {
     grid-template-columns: minmax(min-content, 400px) 1fr;
   }
 }
