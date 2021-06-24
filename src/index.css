@@ -33,11 +33,12 @@ body {
 #root {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 32px;
 }
 
 @media screen and (min-width: 900px) {
   #root {
-    grid-template-columns: minmax(min-content, 400px) 1fr;
+    grid-template-columns: minmax(min-content, 450px) 1fr;
   }
 }
 
@@ -54,4 +55,24 @@ button,
 textarea,
 select {
   font: inherit;
+}
+
+select {
+  padding: 4px 8px;
+  appearance: none;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiM1ODYwNjkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0ibTQuNDI3IDkuNDI3IDMuMzk2IDMuMzk2YS4yNTEuMjUxIDAgMCAwIC4zNTQgMGwzLjM5Ni0zLjM5NkEuMjUuMjUgMCAwIDAgMTEuMzk2IDlINC42MDRhLjI1LjI1IDAgMCAwLS4xNzcuNDI3ek00LjQyMyA2LjQ3IDcuODIgMy4wNzJhLjI1LjI1IDAgMCAxIC4zNTQgMEwxMS41NyA2LjQ3YS4yNS4yNSAwIDAgMS0uMTc3LjQyN0g0LjZhLjI1LjI1IDAgMCAxLS4xNzctLjQyN3oiLz48L3N2Zz4=);
+  background-position: right 4px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 24px;
+}
+
+input {
+  padding: 2px 8px;
+}
+
+label {
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
 }
