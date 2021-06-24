@@ -5,30 +5,43 @@ function App() {
   const ctxRef = useRef(null);
   const chartRef = useRef<Chart>(null);
   const [lohn, setLohn] = useState(0);
-  const [abrechnungszeitraum, setAbrechnungszeitraum] = useState("month");
+
+  enum AbrechnungsZeitäume {
+    Month,
+    Year,
+  }
+  const [abrechnungszeitraum, setAbrechnungszeitraum] = useState(
+    AbrechnungsZeitäume.Month
+  );
   const [steuerklasse, setSteuerklasse] = useState(1);
   const [isKirche, setIsKirche] = useState(false);
   const [bundesland, setBundesland] = useState("nrw");
   const [alter, setAlter] = useState(24);
   const [hasKinder, setHasKinder] = useState(false);
   const [kinderfreibetrag, setKinderfreibetrag] = useState(0);
+  const [KVZusatzBeitrag, setKVZusatzBeitrag] = useState(1.3);
 
   useEffect(() => {
-    console.log("herePrev");
     chartRef.current = new Chart(ctxRef.current, {
       type: "doughnut",
       data: {
-        labels: ["Red", "Blue", "Yellow"],
+        labels: ["Netto", "Steuern", "Sozialabgaben", "Test", "Test2", "Test3"],
         datasets: [
           {
-            label: "My First Dataset",
             data: [300, 50, 100],
             backgroundColor: [
               "rgb(255, 99, 132)",
               "rgb(54, 162, 235)",
               "rgb(255, 205, 85)",
             ],
-            hoverOffset: 4,
+          },
+          {
+            data: [300, 50, 100],
+            backgroundColor: [
+              "rgb(200, 99, 132)",
+              "rgb(10, 162, 235)",
+              "rgb(100, 205, 85)",
+            ],
           },
         ],
       },
@@ -50,10 +63,10 @@ function App() {
       console.log("here");
       const newData = [200, 100, 50];
 
-      chart.data.datasets[0].data = newData;
-      chart.update();
+      // chart.data.datasets[0].data = newData;
+      // chart.update();
     }
-  }, [lohn]);
+  }, [lohn, steuerklasse]);
 
   return (
     <>
@@ -64,6 +77,8 @@ function App() {
             Bruttolohn
             <input
               type="number"
+              min={0}
+              step={1000}
               value={lohn}
               onChange={(e) => setLohn(parseInt(e.target.value, 10))}
             />
@@ -76,9 +91,11 @@ function App() {
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
-                  value="month"
-                  checked={abrechnungszeitraum === "month"}
-                  onChange={(e) => setAbrechnungszeitraum(e.target.value)}
+                  value={AbrechnungsZeitäume.Month}
+                  checked={abrechnungszeitraum === AbrechnungsZeitäume.Month}
+                  onChange={() =>
+                    setAbrechnungszeitraum(AbrechnungsZeitäume.Month)
+                  }
                 />
               </label>
               <label>
@@ -86,9 +103,11 @@ function App() {
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
-                  value="year"
-                  checked={abrechnungszeitraum === "year"}
-                  onChange={(e) => setAbrechnungszeitraum(e.target.value)}
+                  value={AbrechnungsZeitäume.Year}
+                  checked={abrechnungszeitraum === AbrechnungsZeitäume.Year}
+                  onChange={() =>
+                    setAbrechnungszeitraum(AbrechnungsZeitäume.Year)
+                  }
                 />
               </label>
             </div>
@@ -149,6 +168,15 @@ function App() {
               onChange={(e) =>
                 setKinderfreibetrag(parseInt(e.target.value, 10))
               }
+            />
+          </label>
+          <label>
+            KV-Zusatzbeitrag
+            <input
+              type="number"
+              step={0.1}
+              value={KVZusatzBeitrag}
+              onChange={(e) => setKVZusatzBeitrag(parseInt(e.target.value, 10))}
             />
           </label>
         </form>
