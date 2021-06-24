@@ -50,9 +50,7 @@ function App() {
       },
     });
     return () => {
-      if (chartRef && chartRef.current) {
-        chartRef.current.destroy();
-      }
+      chartRef?.current.destroy();
     };
   }, []);
 
@@ -63,8 +61,8 @@ function App() {
       console.log("here");
       const newData = [200, 100, 50];
 
-      // chart.data.datasets[0].data = newData;
-      // chart.update();
+      chart.data.datasets[0].data = newData;
+      chart.update();
     }
   }, [lohn, steuerklasse]);
 
