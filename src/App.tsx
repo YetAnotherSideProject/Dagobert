@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import NettoRechner from "./calc/NettoRechner";
+import { Steuerklasse, Bundesländer } from "./calc/Lohnsteuermerkmale";
 
 function App() {
   const ctxRef = useRef(null);
@@ -49,6 +51,17 @@ function App() {
         maintainAspectRatio: true,
       },
     });
+    console.dir(
+      NettoRechner.calculate(100000, {
+        jahr: 2021,
+        steuerklasse: Steuerklasse.I,
+        kirchenMitglied: true,
+        bundesland: Bundesländer["NW"],
+        alter: 24,
+        kinder: false,
+        kvZusatzBeitrag: 1.3,
+      })
+    );
     return () => {
       if (chartRef && chartRef.current) {
         chartRef.current.destroy();
