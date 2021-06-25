@@ -1,33 +1,40 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import NettoRechner from "./calc/NettoRechner";
-import { Steuerklasse, Bundesländer } from "./calc/Lohnsteuermerkmale";
+import {
+  AbrechnungsZeitraum,
+  Steuerklasse,
+  Bundesländer,
+} from "./calc/Lohnsteuermerkmale";
 
 function App() {
   const ctxRef = useRef(null);
   const chartRef = useRef<Chart>(null);
-  const [lohn, setLohn] = useState(0);
 
-  enum AbrechnungsZeitäume {
-    Month,
-    Year,
-  }
-  const [abrechnungszeitraum, setAbrechnungszeitraum] = useState(
-    AbrechnungsZeitäume.Month
+  const [bruttoLohn, setBruttoLohn] = useState(0);
+  const [abrechnungsZeitraum, setAbrechnungsZeitraum] = useState(
+    AbrechnungsZeitraum.Month
   );
-  const [steuerklasse, setSteuerklasse] = useState(1);
-  const [isKirche, setIsKirche] = useState(false);
-  const [bundesland, setBundesland] = useState("nrw");
+  const [steuerklasse, setSteuerklasse] = useState(Steuerklasse.I);
+  const [kirchenMitglied, setKirchenMitglied] = useState(false);
+  const [bundesland, setBundesland] = useState("NW");
   const [alter, setAlter] = useState(24);
-  const [hasKinder, setHasKinder] = useState(false);
+  const [kinder, setKinder] = useState(false);
   const [kinderfreibetrag, setKinderfreibetrag] = useState(0);
-  const [KVZusatzBeitrag, setKVZusatzBeitrag] = useState(1.3);
+  const [kvZusatzBeitrag, setKvZusatzBeitrag] = useState(1.3);
 
   useEffect(() => {
     chartRef.current = new Chart(ctxRef.current, {
       type: "doughnut",
       data: {
-        labels: ["Netto", "Steuern", "Sozialabgaben", "Test", "Test2", "Test3"],
+        labels: [
+          "Netto",
+          "Steuern",
+          "Sozialabgaben",
+          "Lohnsteuer",
+          "Kirchensteuer",
+          "Solidaritätszuschlag",
+        ],
         datasets: [
           {
             data: [300, 50, 100],
@@ -40,9 +47,10 @@ function App() {
           {
             data: [300, 50, 100],
             backgroundColor: [
-              "rgb(200, 99, 132)",
+              "rgb(255, 255, 255)",
               "rgb(10, 162, 235)",
               "rgb(100, 205, 85)",
+              "rgb(50, 100, 85)",
             ],
           },
         ],
@@ -51,17 +59,7 @@ function App() {
         maintainAspectRatio: true,
       },
     });
-    console.dir(
-      NettoRechner.calculate(100000, {
-        jahr: 2021,
-        steuerklasse: Steuerklasse.I,
-        kirchenMitglied: true,
-        bundesland: Bundesländer["NW"],
-        alter: 24,
-        kinder: false,
-        kvZusatzBeitrag: 1.3,
-      })
-    );
+
     return () => {
       chartRef?.current.destroy();
     };
@@ -71,13 +69,41 @@ function App() {
     // do calculations
     const chart = chartRef.current;
     if (chart) {
-      console.log("here");
-      const newData = [200, 100, 50];
+      const newData = NettoRechner.calculate(bruttoLohn, {
+        abrechnungsZeitraum,
+        jahr: 2021,
+        steuerklasse,
+        kirchenMitglied,
+        bundesland: Bundesländer[bundesland],
+        alter,
+        kinder,
+        kvZusatzBeitrag,
+      });
+      console.dir(newData);
 
-      chart.data.datasets[0].data = newData;
+      const steuern =
+        newData.steuern.lohnsteuer +
+        newData.steuern.kirchensteuer +
+        newData.steuern.soli;
+      chart.data.datasets[0].data = [bruttoLohn - steuern, steuern, 0];
+      chart.data.datasets[1].data = [
+        bruttoLohn - steuern,
+        newData.steuern.lohnsteuer,
+        newData.steuern.kirchensteuer,
+        newData.steuern.soli,
+      ];
       chart.update();
     }
-  }, [lohn, steuerklasse]);
+  }, [
+    alter,
+    bundesland,
+    kinder,
+    kirchenMitglied,
+    kvZusatzBeitrag,
+    bruttoLohn,
+    steuerklasse,
+    abrechnungsZeitraum,
+  ]);
 
   return (
     <>
@@ -90,8 +116,8 @@ function App() {
               type="number"
               min={0}
               step={1000}
-              value={lohn}
-              onChange={(e) => setLohn(parseInt(e.target.value, 10))}
+              value={bruttoLohn}
+              onChange={(e) => setBruttoLohn(parseInt(e.target.value, 10))}
             />
           </label>
           <label>
@@ -102,10 +128,10 @@ function App() {
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
-                  value={AbrechnungsZeitäume.Month}
-                  checked={abrechnungszeitraum === AbrechnungsZeitäume.Month}
+                  value={AbrechnungsZeitraum.Month}
+                  checked={abrechnungsZeitraum === AbrechnungsZeitraum.Month}
                   onChange={() =>
-                    setAbrechnungszeitraum(AbrechnungsZeitäume.Month)
+                    setAbrechnungsZeitraum(AbrechnungsZeitraum.Month)
                   }
                 />
               </label>
@@ -114,10 +140,10 @@ function App() {
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
-                  value={AbrechnungsZeitäume.Year}
-                  checked={abrechnungszeitraum === AbrechnungsZeitäume.Year}
+                  value={AbrechnungsZeitraum.Year}
+                  checked={abrechnungsZeitraum === AbrechnungsZeitraum.Year}
                   onChange={() =>
-                    setAbrechnungszeitraum(AbrechnungsZeitäume.Year)
+                    setAbrechnungsZeitraum(AbrechnungsZeitraum.Year)
                   }
                 />
               </label>
@@ -127,22 +153,19 @@ function App() {
             Steuerklasse
             <select
               value={steuerklasse}
-              onChange={(e) => setSteuerklasse(parseInt(e.target.value, 10))}
+              onChange={(e) => setSteuerklasse(e.target.value as Steuerklasse)}
             >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
+              {Object.keys(Steuerklasse).map((key) => (
+                <option value={key}>{key}</option>
+              ))}
             </select>
           </label>
           <label>
             In der Kirche?
             <input
               type="checkbox"
-              checked={isKirche}
-              onChange={(e) => setIsKirche(e.target.checked)}
+              checked={kirchenMitglied}
+              onChange={(e) => setKirchenMitglied(e.target.checked)}
             />
           </label>
           <label>
@@ -151,7 +174,9 @@ function App() {
               value={bundesland}
               onChange={(e) => setBundesland(e.target.value)}
             >
-              <option value="nrw">NRW</option>
+              {Object.keys(Bundesländer).map((key) => (
+                <option value={key}>{Bundesländer[key].name}</option>
+              ))}
             </select>
           </label>
           <label>
@@ -167,8 +192,8 @@ function App() {
             Kinder?
             <input
               type="checkbox"
-              checked={hasKinder}
-              onChange={(e) => setHasKinder(e.target.checked)}
+              checked={kinder}
+              onChange={(e) => setKinder(e.target.checked)}
             />
           </label>
           <label>
@@ -186,8 +211,8 @@ function App() {
             <input
               type="number"
               step={0.1}
-              value={KVZusatzBeitrag}
-              onChange={(e) => setKVZusatzBeitrag(parseInt(e.target.value, 10))}
+              value={kvZusatzBeitrag}
+              onChange={(e) => setKvZusatzBeitrag(parseInt(e.target.value, 10))}
             />
           </label>
         </form>

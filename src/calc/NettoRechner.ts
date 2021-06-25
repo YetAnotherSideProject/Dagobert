@@ -1,4 +1,5 @@
 import Lohnsteuermerkmale, {
+  AbrechnungsZeitraum,
   Bundesland,
   Bundesländer,
 } from "./Lohnsteuermerkmale";
@@ -8,15 +9,18 @@ export default class NettoRechner {
   private static jahr: Jahr;
 
   static calculate(
-    jahresBruttoLohn: number,
+    bruttoLohn: number,
     calcConfig: Lohnsteuermerkmale
   ): NettoCalcResult {
-    console.log(`Input Brutto Lohn: ${jahresBruttoLohn}`);
+    console.log(`Input Brutto Lohn: ${bruttoLohn}`);
     console.log(`Input calc config:`);
     console.dir(calcConfig);
     //Zwischenspeicher, da öfter benötigt und sich nur einmal je Berechnung ändern könnte
     NettoRechner.jahr = JahresMerkmale[calcConfig.jahr];
-
+    let jahresBruttoLohn = bruttoLohn;
+    if (calcConfig.abrechnungsZeitraum === AbrechnungsZeitraum.Month) {
+      jahresBruttoLohn = bruttoLohn * 12;
+    }
     const zvE =
       jahresBruttoLohn -
       this.calcVorsorgepauschale(jahresBruttoLohn, calcConfig.bundesland) -

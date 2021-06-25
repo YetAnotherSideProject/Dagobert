@@ -1,4 +1,5 @@
 export default interface Lohnsteuermerkmale {
+  abrechnungsZeitraum: AbrechnungsZeitraum;
   jahr: number;
   steuerklasse: Steuerklasse;
   kirchenMitglied: boolean;
@@ -8,6 +9,10 @@ export default interface Lohnsteuermerkmale {
   kvZusatzBeitrag: number;
 }
 
+export enum AbrechnungsZeitraum {
+  Month,
+  Year,
+}
 export enum Steuerklasse {
   I = "I",
   II = "II",
