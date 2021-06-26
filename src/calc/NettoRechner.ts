@@ -1,11 +1,11 @@
 import Lohnsteuermerkmale, {
   AbrechnungsZeitraum,
-  Bundesland,
   Bundesländer,
 } from "./Lohnsteuermerkmale";
 import { Jahr, JahresMerkmale } from "./Jahressteuermerkmale";
 
 export default class NettoRechner {
+  private static config: Lohnsteuermerkmale;
   private static jahr: Jahr;
 
   static calculate(
@@ -16,7 +16,8 @@ export default class NettoRechner {
     console.log(`Input calc config:`);
     console.dir(calcConfig);
 
-    //Zwischenspeicher, da öfter benötigt und sich nur einmal je Berechnung ändern könnte
+    //Zwischenspeicher, da öfter benötigt und sich nur einmal je Berechnung ändern könnte und nur diese Methode offenen Zugang zur Klasse gibt
+    NettoRechner.config = calcConfig;
     NettoRechner.jahr = JahresMerkmale[calcConfig.jahr];
     let jahresBruttoLohn = bruttoLohn;
     if (calcConfig.abrechnungsZeitraum === AbrechnungsZeitraum.Month) {
@@ -25,7 +26,7 @@ export default class NettoRechner {
 
     const zvE =
       jahresBruttoLohn -
-      this.calcVorsorgepauschale(jahresBruttoLohn, calcConfig.bundesland) -
+      this.calcVorsorgepauschale(jahresBruttoLohn) -
       NettoRechner.jahr.anPauschbetrag -
       NettoRechner.jahr.sonderausgabenPauschbetrag;
     console.log(`Zu versteuerndes Einkommen: ${zvE}`);
@@ -34,48 +35,32 @@ export default class NettoRechner {
     return {
       steuern: {
         lohnsteuer: Math.floor(lohnsteuer),
-        kirchensteuer: Math.floor(
-          this.calcKirchensteuer(lohnsteuer, calcConfig.bundesland)
-        ),
+        kirchensteuer: Math.floor(this.calcKirchensteuer(lohnsteuer)),
         soli: Math.floor(this.calcSoli(lohnsteuer)),
       },
       sozialabgaben: {
         rentenversicherung: Math.floor(
-          this.calcRentenVersicherung(jahresBruttoLohn, calcConfig.bundesland)
+          this.calcRentenVersicherung(jahresBruttoLohn)
         ),
         arbeitslosenversicherung: Math.floor(
-          this.calcArbeitslosenversicherung(
-            jahresBruttoLohn,
-            calcConfig.bundesland
-          )
+          this.calcArbeitslosenversicherung(jahresBruttoLohn)
         ),
         krankenversicherung: Math.floor(
-          this.calcKrankenversicherung(
-            jahresBruttoLohn,
-            calcConfig.kvZusatzBeitrag
-          )
+          this.calcKrankenversicherung(jahresBruttoLohn)
         ),
         pflegeversicherung: Math.floor(
-          this.calcPflegeversicherung(
-            jahresBruttoLohn,
-            calcConfig.bundesland,
-            calcConfig.alter,
-            calcConfig.kinder
-          )
+          this.calcPflegeversicherung(jahresBruttoLohn)
         ),
       },
     };
   }
 
   // Berechnung nötig für das zu versteuernde Einkommen
-  private static calcVorsorgepauschale(
-    jahresBruttoLohn: number,
-    bundesland: Bundesland
-  ): number {
+  private static calcVorsorgepauschale(jahresBruttoLohn: number): number {
     // s. https://de.wikipedia.org/wiki/Vorsorgepauschale
     // 1. Teil-Vorsorgepauschale für Rentenversicherung
     const part1 =
-      this.getRvAvBasis(jahresBruttoLohn, bundesland) *
+      this.getRvAvBasis(jahresBruttoLohn) *
       (NettoRechner.jahr.rvBeitrag / 2) *
       NettoRechner.jahr.rvKorrekturFaktor;
     // 2. Teil-Vorsorgepauschale für Kranken- und Pflegeversicherung
@@ -116,14 +101,11 @@ export default class NettoRechner {
     }
   }
 
-  private static calcKirchensteuer(
-    einkommenssteuer: number,
-    bundesland: Bundesland
-  ): number {
+  private static calcKirchensteuer(einkommenssteuer: number): number {
     //TODO das ist fix 2021
     if (
-      bundesland === Bundesländer["BW"] ||
-      bundesland === Bundesländer["BY"]
+      NettoRechner.config.bundesland === Bundesländer["BW"] ||
+      NettoRechner.config.bundesland === Bundesländer["BY"]
     ) {
       return 0.08 * einkommenssteuer;
     } else {
@@ -148,12 +130,9 @@ export default class NettoRechner {
   }
 
   // Hilfsmethoden für die Basis der RV/AV und  KV/PV Jahresbruttolohn bis zur Beitragsbemessungsrenze
-  private static getRvAvBasis(
-    jahresBruttoLohn: number,
-    bundesland: Bundesland
-  ): number {
+  private static getRvAvBasis(jahresBruttoLohn: number): number {
     //Bei RV/AV Bundesland relevant, da "Osten" niedrigere Bemessungsgrenze (Stand 2021)
-    return bundesland.osten
+    return NettoRechner.config.bundesland.osten
       ? Math.min(
           jahresBruttoLohn,
           NettoRechner.jahr.rvBeitragsbemessungsgrenzeOst
@@ -172,44 +151,37 @@ export default class NettoRechner {
   }
 
   // Berechnungen der Sozialversicherungsabgaben
-  private static calcRentenVersicherung(
-    jahresBruttoLohn: number,
-    bundesland: Bundesland
-  ): number {
+  private static calcRentenVersicherung(jahresBruttoLohn: number): number {
     const anRvBeitrag = NettoRechner.jahr.rvBeitrag / 2;
-    return this.getRvAvBasis(jahresBruttoLohn, bundesland) * anRvBeitrag;
+    return this.getRvAvBasis(jahresBruttoLohn) * anRvBeitrag;
   }
 
   private static calcArbeitslosenversicherung(
-    jahresBruttoLohn: number,
-    bundesland: Bundesland
+    jahresBruttoLohn: number
   ): number {
     const anAvBeitrag = NettoRechner.jahr.avBeitrag / 2;
-    return this.getRvAvBasis(jahresBruttoLohn, bundesland) * anAvBeitrag;
+    return this.getRvAvBasis(jahresBruttoLohn) * anAvBeitrag;
   }
 
-  private static calcKrankenversicherung(
-    jahresBruttoLohn: number,
-    kvZusatzBeitrag: number
-  ): number {
+  private static calcKrankenversicherung(jahresBruttoLohn: number): number {
     // kvZusatzbeitrag kommt als volle Prozent und nicht dezimal
     const anKvBeitrag =
-      (NettoRechner.jahr.kvBeitrag + kvZusatzBeitrag / 100) / 2;
+      (NettoRechner.jahr.kvBeitrag +
+        NettoRechner.config.kvZusatzBeitrag / 100) /
+      2;
     return this.getKvPvBasis(jahresBruttoLohn) * anKvBeitrag;
   }
 
-  private static calcPflegeversicherung(
-    jahresBruttoLohn: number,
-    bundesland: Bundesland,
-    alter: number,
-    kinder: boolean
-  ) {
+  private static calcPflegeversicherung(jahresBruttoLohn: number) {
     let anPvBeitrag = NettoRechner.jahr.pvBeitrag / 2;
-    if (bundesland === Bundesländer["SN"]) {
+    if (NettoRechner.config.bundesland === Bundesländer["SN"]) {
       // Sonderregel Sachsen wegen irgendnem Feiertrag Streit...
       anPvBeitrag += 0.005;
     }
-    if (alter > 23 && kinder === false) {
+    if (
+      NettoRechner.config.alter > 23 &&
+      NettoRechner.config.kinder === false
+    ) {
       // Sonderregel Kinderlose ab vollendetem 23. Lebensjahr (24)
       anPvBeitrag += 0.0025;
     }
