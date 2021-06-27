@@ -11,9 +11,9 @@ function App() {
   const ctxRef = useRef(null);
   const chartRef = useRef<Chart>(null);
 
-  const [bruttoLohn, setBruttoLohn] = useState(0);
+  const [bruttoLohn, setBruttoLohn] = useState(40000);
   const [abrechnungsZeitraum, setAbrechnungsZeitraum] = useState(
-    AbrechnungsZeitraum.Month
+    AbrechnungsZeitraum.Year
   );
   const [steuerklasse, setSteuerklasse] = useState(Steuerklasse.I);
   const [kirchenMitglied, setKirchenMitglied] = useState(false);
