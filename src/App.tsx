@@ -27,30 +27,23 @@ function App() {
     chartRef.current = new Chart(ctxRef.current, {
       type: "doughnut",
       data: {
-        labels: [
-          "Netto",
-          "Steuern",
-          "Sozialabgaben",
-          "Lohnsteuer",
-          "Kirchensteuer",
-          "Solidaritätszuschlag",
-        ],
+        labels: ["Netto", "Steuern", "Sozialabgaben"],
         datasets: [
           {
             data: [300, 50, 100],
-            backgroundColor: [
-              "rgb(255, 99, 132)",
-              "rgb(54, 162, 235)",
-              "rgb(255, 205, 85)",
-            ],
+            backgroundColor: ["#1f77b4", "#ff7f0e", "#2ca02c"],
           },
           {
             data: [300, 50, 100],
             backgroundColor: [
-              "rgb(255, 255, 255)",
-              "rgb(10, 162, 235)",
-              "rgb(100, 205, 85)",
-              "rgb(50, 100, 85)",
+              "#fff",
+              "#ee7422",
+              "#f59c3c",
+              "#fcbe75",
+              "#256f3d",
+              "#428f4d",
+              "#85ca77",
+              "#a5db96",
             ],
           },
         ],
@@ -85,12 +78,25 @@ function App() {
         newData.steuern.lohnsteuer +
         newData.steuern.kirchensteuer +
         newData.steuern.soli;
-      chart.data.datasets[0].data = [bruttoLohn - steuern, steuern, 0];
+      const sozialabgaben =
+        newData.sozialabgaben.arbeitslosenversicherung +
+        newData.sozialabgaben.krankenversicherung +
+        newData.sozialabgaben.pflegeversicherung +
+        newData.sozialabgaben.rentenversicherung;
+      chart.data.datasets[0].data = [
+        bruttoLohn - steuern,
+        steuern,
+        sozialabgaben,
+      ];
       chart.data.datasets[1].data = [
         bruttoLohn - steuern,
         newData.steuern.lohnsteuer,
         newData.steuern.kirchensteuer,
         newData.steuern.soli,
+        newData.sozialabgaben.arbeitslosenversicherung,
+        newData.sozialabgaben.krankenversicherung,
+        newData.sozialabgaben.pflegeversicherung,
+        newData.sozialabgaben.rentenversicherung,
       ];
       chart.update();
     }
