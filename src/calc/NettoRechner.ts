@@ -102,6 +102,10 @@ export default class NettoRechner {
   }
 
   private static calcKirchensteuer(einkommenssteuer: number): number {
+    // Nur wenn Kirchenmitglied
+    if (!NettoRechner.config.kirchenMitglied) {
+      return 0;
+    }
     //TODO das ist fix 2021
     if (
       NettoRechner.config.bundesland === Bundesländer["BW"] ||
