@@ -241,7 +241,7 @@ function App() {
               type="number"
               step={0.1}
               value={kvZusatzBeitrag}
-              onChange={(e) => setKvZusatzBeitrag(parseInt(e.target.value, 10))}
+              onChange={(e) => setKvZusatzBeitrag(parseFloat(e.target.value))}
             />
           </label>
         </form>
