@@ -18,7 +18,7 @@ function App() {
   const [steuerklasse, setSteuerklasse] = useState(Steuerklasse.I);
   const [kirchenMitglied, setKirchenMitglied] = useState(false);
   const [bundesland, setBundesland] = useState("NW");
-  const [alter, setAlter] = useState(24);
+  const [alter, setAlter] = useState(25);
   const [kinder, setKinder] = useState(false);
   const [kinderfreibetrag, setKinderfreibetrag] = useState(0);
   const [kvZusatzBeitrag, setKvZusatzBeitrag] = useState(1.3);
@@ -50,6 +50,27 @@ function App() {
       },
       options: {
         maintainAspectRatio: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (context: any) {
+                var label = context.dataset.label || "";
+
+                if (label) {
+                  label += ": ";
+                }
+                if (context.parsed.y !== null) {
+                  label += new Intl.NumberFormat("de-DE", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  }).format(context.parsed);
+                }
+                return label;
+              },
+            },
+          },
+        },
       },
     });
 
@@ -191,7 +212,9 @@ function App() {
               value={alter}
               onChange={(e) => setAlter(parseInt(e.target.value, 10))}
             >
-              <option value="24">24</option>
+              {Array.from(Array(100).keys()).map((element, index) => (
+                <option value={index + 1}>{index + 1}</option>
+              ))}
             </select>
           </label>
           <label>
