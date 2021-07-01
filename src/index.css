@@ -21,6 +21,7 @@ dd {
 
 /* Set core body defaults */
 body {
+  font-size: 16px;
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
@@ -65,14 +66,32 @@ select {
   background-repeat: no-repeat;
   background-size: 16px;
   padding-right: 24px;
+  width: 100%;
 }
 
 input {
   padding: 2px 8px;
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  margin: 10px 0;
+  width: initial;
+}
+
+input[type="radio"] {
+  margin: 10px 0;
+  margin-right: 4px;
+  min-width: 14px;
 }
 
 label {
   font-weight: 600;
   display: flex;
   flex-direction: column;
+  white-space: nowrap;
+}
+
+.two-column {
+  grid-column: 1 / 3;
 }

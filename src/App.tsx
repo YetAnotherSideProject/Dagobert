@@ -54,8 +54,7 @@ function App() {
           tooltip: {
             callbacks: {
               label: function (context: any) {
-                var label = context.dataset.label || "";
-
+                var label = context.label || "";
                 if (label) {
                   label += ": ";
                 }
@@ -136,7 +135,9 @@ function App() {
     <>
       <div>
         <div style={{ fontSize: "40px" }}>Brutto-Netto-Rechner</div>
-        <form style={{ display: "grid", gap: 12 }}>
+        <form
+          style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}
+        >
           <label>
             Bruttolohn
             <input
@@ -147,11 +148,10 @@ function App() {
               onChange={(e) => setBruttoLohn(parseInt(e.target.value, 10))}
             />
           </label>
-          <label>
-            Abrechnungszeitraum
+          <div>
+            <div style={{ height: 21 }}></div>
             <div style={{ display: "flex", gap: 16 }}>
-              <label>
-                Monat
+              <label style={{ flexDirection: "row", alignItems: "center" }}>
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
@@ -161,9 +161,9 @@ function App() {
                     setAbrechnungsZeitraum(AbrechnungsZeitraum.Month)
                   }
                 />
+                im Monat
               </label>
-              <label>
-                Jahr
+              <label style={{ flexDirection: "row", alignItems: "center" }}>
                 <input
                   type="radio"
                   name="Abrechnungszeitraum"
@@ -173,10 +173,11 @@ function App() {
                     setAbrechnungsZeitraum(AbrechnungsZeitraum.Year)
                   }
                 />
+                im Jahr
               </label>
             </div>
-          </label>
-          <label>
+          </div>
+          <label className="two-column">
             Steuerklasse
             <select
               value={steuerklasse}
@@ -187,7 +188,7 @@ function App() {
               ))}
             </select>
           </label>
-          <label>
+          <label className="two-column">
             In der Kirche?
             <input
               type="checkbox"
@@ -195,7 +196,7 @@ function App() {
               onChange={(e) => setKirchenMitglied(e.target.checked)}
             />
           </label>
-          <label>
+          <label className="two-column">
             Bundesland
             <select
               value={bundesland}
@@ -206,7 +207,7 @@ function App() {
               ))}
             </select>
           </label>
-          <label>
+          <label className="two-column">
             Alter
             <select
               value={alter}
@@ -229,13 +230,14 @@ function App() {
             Kinderfreibetrag
             <input
               type="number"
+              disabled={!kinder}
               value={kinderfreibetrag}
               onChange={(e) =>
                 setKinderfreibetrag(parseInt(e.target.value, 10))
               }
             />
           </label>
-          <label>
+          <label className="two-column">
             KV-Zusatzbeitrag
             <input
               type="number"
